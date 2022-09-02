@@ -65,11 +65,11 @@ public:
   using err_type = typename details::ResultBase<Ts...>::err_type;
 
 public:
-  template <class V> Result(V &&value) : base_type(value) {}
+  template <class V> Result(V &&value) : base_type(std::forward<V>(value)) {}
 
   template <class V>
   Result(V &&value) requires(std::is_base_of_v<Error, V>)
-      : base_type(Err<V>(value)) {}
+      : base_type(Err<V>(std::forward<V>(value))) {}
 
   // Returns whether the result is a value (ok)
   [[nodiscard]] bool ok() const { return this->index() == 0; }
@@ -78,10 +78,10 @@ public:
   [[nodiscard]] bool err() const { return this->index() == 1; }
 
   // Returns the value of type Ok<V>
-  ok_type get_ok() const { return std::get<ok_type>(*this); }
+  [[nodiscard]] ok_type get_ok() const { return std::get<ok_type>(*this); }
 
   // Returns the error
-  err_type get_err() const { return std::get<err_type>(*this); }
+  [[nodiscard]] err_type get_err() const { return std::get<err_type>(*this); }
 
   template <class... Rs>
   friend std::ostream &operator<<(std::ostream & /*os*/,

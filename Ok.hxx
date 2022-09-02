@@ -35,7 +35,6 @@ template <typename... Ts> class Ok {
 
 private:
   static constexpr std::size_t size = sizeof...(Ts);
-  using impl_type = typename details::OkImplType<size, Ts...>::type;
   typename details::OkImplType<size, Ts...>::type _impl;
 
 public:

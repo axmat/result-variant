@@ -16,7 +16,7 @@ namespace details {
 template <typename E> struct ErrImpl {
   E _err;
 
-  ErrImpl(E err) : _err(err) {}
+  ErrImpl(const E &err) : _err(err) {}
   ErrImpl(E &&err) : _err(std::move(err)) {}
 
   template <class T>
@@ -58,14 +58,14 @@ template <typename... Es> class Err {
 
 private:
   static constexpr std::size_t size = sizeof...(Es);
-  using ImplType = typename details::ErrImplType<size, Es...>::type;
-  ImplType _impl;
+  typename details::ErrImplType<size, Es...>::type _impl;
 
 public:
   Err(const std::string &message) requires(size == 0) : _impl(message) {}
   Err(std::string &&message) requires(size == 0) : _impl(std::move(message)) {}
 
-  template <typename Args> Err(Args &&args) requires(size == 1) : _impl(args) {}
+  template <typename V> Err(V &&value) requires(size == 1)
+   : _impl(std::forward<V>(value)) {}
 
   template <typename... Ts>
   friend std::ostream &operator<<(std::ostream &, const Err<Ts...> &);
